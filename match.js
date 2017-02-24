@@ -109,7 +109,11 @@ module.exports = function(RED) {
                     }
 
                     if (!(((rule.valueType === 'prev') || (rule.value2Type === 'prev')) && (rule.previousValue == null))) {
-                        if (!operators[rule.type](test,v1,v2,rule.case)) {
+
+                        if (operators[rule.type](test,v1,v2,rule.case)) {
+                            this.status({fill:"green",shape:"dot",text:"ok"});
+                            this.send([msg, null]);
+                        } else {
                             this.status({fill:"red",shape:"dot",text:"Rule " + (i+1) + " failed"});
                             this.send([null, msg]);
                         }
@@ -118,8 +122,6 @@ module.exports = function(RED) {
                     rule.previousValue = test;
 
                 }
-                this.status({fill:"green",shape:"dot",text:"ok"});
-                this.send([msg, null]);
             } catch(err) {
                 node.error(err,msg);
             }
