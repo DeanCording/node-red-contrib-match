@@ -23,7 +23,7 @@
   },
   "node-red": {
     "nodes": {
-      "assert": "match.js"
+      "match": "match.js"
     }
   }
 }
