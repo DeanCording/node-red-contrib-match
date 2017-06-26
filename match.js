@@ -91,6 +91,7 @@ module.exports = function(RED) {
 
         this.on('input', function (msg) {
             try {
+		var pass = true;
                 for (var i=0; i<node.rules.length; i+=1) {
                     var rule = node.rules[i];
                     var test = RED.util.evaluateNodeProperty(rule.property,rule.propertyType,node,msg);
@@ -110,17 +111,24 @@ module.exports = function(RED) {
 
                     if (!(((rule.valueType === 'prev') || (rule.value2Type === 'prev')) && (rule.previousValue == null))) {
 
-                        if (operators[rule.type](test,v1,v2,rule.case)) {
-                            this.status({fill:"green",shape:"dot",text:"ok"});
-                            this.send([msg, null]);
-                        } else {
-                            this.status({fill:"red",shape:"dot",text:"Rule " + (i+1) + " failed"});
-                            this.send([null, msg]);
-                        }
+                        if (!operators[rule.type](test,v1,v2,rule.case)) {
+                           pass = false;
+		           break;
+			}
+
                     }
 
                     rule.previousValue = test;
 
+                }
+
+
+      	        if (pass) {
+                    this.status({fill:"green",shape:"dot",text:"ok"});
+                    this.send([msg, null]);
+                } else {
+                    this.status({fill:"red",shape:"dot",text:"Rule " + (i+1) + " failed"});
+                    this.send([null, msg]);
                 }
             } catch(err) {
                 node.error(err,msg);
